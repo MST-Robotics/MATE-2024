@@ -1,4 +1,4 @@
-from installation.verify import (
+from diagnostic.verify import (
     VerificationStatus,
     is_ffmpeg_installed,
     verify_ffmpeg_installed,
