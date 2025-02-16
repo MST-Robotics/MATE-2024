@@ -1,9 +1,8 @@
+from pathlib import Path
 from typing import Any
 import subprocess
-import logging
+import argparse
 import json
-
-logger = logging.getLogger('Default')
 
 """
 This program uses v4l2-ctl "Video for linux" to find information about cameras.
@@ -73,7 +72,7 @@ class Device(object):
                                     text=True)
             result.check_returncode()
         except Exception:
-            logger.error(f'Failed to list info about device {self.name}.')
+            print(f'Failed to list info about device {self.name}.')
 
         output = result.stdout.splitlines()
 
@@ -95,7 +94,7 @@ def list_cameras() -> list[Camera]:
                                 text=True)
         result.check_returncode()
     except Exception:
-        logger.error('Failed to list devices.')
+        print('Failed to list devices.')
         return []
 
     def split_cameras(output: str) -> list[list[str]]:
@@ -117,17 +116,37 @@ def list_cameras() -> list[Camera]:
     def parse_camera(output: list[str]) -> Camera:
         camera_id_line = output[0]
         camera_name = camera_id_line.split('(')[0].strip()
-        camera_platform = camera_id_line.split('(')[1].split(')')[0].strip()        
+        camera_platform = camera_id_line.split('(')[1].split(')')[0].strip()
         devices = [line.strip() for line in output[1:] if '/dev/media' not in line]
         return Camera(camera_name, camera_platform, devices)
 
     cameras = split_cameras(result.stdout)
-    logger.info(f'Identified {len(cameras)} cameras.')
+    print(f'Identified {len(cameras)} cameras.')
     return [parse_camera(camera) for camera in cameras]
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser('Summarize V4L2 Identified Cameras')
+    parser.add_argument('--out', default='summary.json')
+    parser.add_argument('--verbose', default=False)
+    args = parser.parse_args()
+
+    output_path = Path(args.out)
+    if output_path.suffix != '.json':
+        print(
+            f'Provided output file path is not a JSON file, but instead {output_path.suffix}')
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     cameras = list_cameras()
+
+    if args.verbose:
+        for camera in cameras:
+            print(f"Camera: {camera.name}")
+            for device in camera.devices:
+                print('\tDevice: ', device.name)
+                for field, value in device.fields.items():
+                    print(f'\t\t{field}: {value}') 
+
     cameras_json = [camera.to_json() for camera in cameras]
-    with open('summary.json', 'w') as file_json:
+    with open(output_path, 'w') as file_json:
         json.dump(cameras_json, file_json, indent=4)

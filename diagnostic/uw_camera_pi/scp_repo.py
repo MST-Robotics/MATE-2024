@@ -6,7 +6,6 @@ PROJECT_DIR = Path(__file__).parent.parent.parent.absolute()
 
 USERNAME = 'underwater'
 HOSTNAME = 'uw-camera'
-LOCATION = '/home/underwater'
 
 command = ['rsync', '-rav']
 command.append('--exclude=.git')  # Can't add this to .gitignore
@@ -17,6 +16,6 @@ with open(GITIGNORE_PATH, 'r') as gitignore_file:
         command.append(f'--exclude={exclusion.strip()}')
 
 os.chdir(PROJECT_DIR.parent)
-command += ['MATE-2024', f'{USERNAME}@{HOSTNAME}:{LOCATION}']
+command += ['MATE-2024', f'{USERNAME}@{HOSTNAME}:/home/{USERNAME}']
 
 subprocess.run(command)

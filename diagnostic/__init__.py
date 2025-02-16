@@ -29,6 +29,9 @@ ch.setLevel(logging.DEBUG)
 
 ch.setFormatter(CustomFormatter())
 
-logger = logging.getLogger('Default')
-logger.setLevel(logging.DEBUG)
-logger.addHandler(ch)
+logger_names = ['uw-camera']
+
+for name in logger_names:
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(ch)
