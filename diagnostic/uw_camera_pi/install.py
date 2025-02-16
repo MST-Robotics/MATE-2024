@@ -71,11 +71,11 @@ def install_mediamtx():
     # Setup configuration
     try:
         os.chdir(mmtx_path)
-        with open(mmtx_path/'config.yml', 'w') as config_file:
+        with open(mmtx_path/'mediamtx.yml', 'w') as config_file:
             config_file.writelines([
-                'paths:',
-                '  all:',
-                '    source: publisher'
+                'paths:\n',
+                '  all:\n',
+                '    source: publisher\n'
             ])
     except Exception as e:
         logger.error('Could not setup configurations for mediamtx:\n', e)
